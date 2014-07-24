@@ -1,0 +1,35 @@
+name: ${project.name}
+version: ${project.version}
+main: org.bitbucket.ucchy.thruster.Thruster
+description: Thruster
+author: ucchy
+
+commands:
+  thruster:
+    description: Thruster Command
+    usage: |
+           /<command> get - Get new thruster.
+           /<command> give (player) - Give new thruster.
+           /<command> reload - Reload configuration.
+    permission: thruster.command
+    permission-message: 'You don''t have permission "<permission>".'
+
+permissions:
+  thruster.command:
+    description: Allows to use command.
+    default: true
+  thruster.get:
+    description: Allows to use get command.
+    default: true
+  thruster.give:
+    description: Allows to use give command.
+    default: op
+  thruster.reload:
+    description: Allows to use reload command.
+    default: op
+  'thruster.*':
+    children:
+      thruster.command: true
+      thruster.get: true
+      thruster.give: true
+      thruster.reload: true

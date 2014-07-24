@@ -1,0 +1,20 @@
+# ${project.name} v${project.version}
+# @author     ucchy
+# @license    GPLv3
+# @copyright  Copyright ucchy 2014
+
+# スラスターの上昇方向のスピードです
+upperPower: 0.5
+
+# スラスターの横方向のスピードです
+sidePower: 3.0
+
+# スラスターのアイテムです。足に装備できるものにしてください
+thrusterMaterial: IRON_BOOTS
+
+# スラスターを噴射したときに、アイテムの耐久値をいくつ減らすかを設定します。
+# 0なら、耐久値は減りません。
+decreaseDurability: 1
+
+# プレイヤーが設置していないときに、スラスターの使用を制限するかを設定します。
+limitOnGround: true
