@@ -46,13 +46,13 @@ public class ThrusterConfig {
         upperPower = conf.getDouble("upperPower", 0.5);
         sidePower = conf.getDouble("sidePower", 3.0);
 
-        String temp = conf.getString("thrusterMaterial", "IRON_BOOTS");
+        String temp = conf.getString("thrusterMaterial", "GOLD_BOOTS");
         thrusterMaterial = Material.matchMaterial(temp);
         if ( thrusterMaterial == null ) {
             thrusterMaterial = Material.IRON_BOOTS;
         }
 
-        decreaseDurability = conf.getInt("decreaseDurability", 1);
+        decreaseDurability = conf.getInt("decreaseDurability", 2);
         if ( decreaseDurability < 0 ) {
             decreaseDurability = 0;
         }

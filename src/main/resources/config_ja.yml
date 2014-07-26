@@ -10,11 +10,13 @@ upperPower: 0.5
 sidePower: 3.0
 
 # スラスターのアイテムです。足に装備できるものにしてください
-thrusterMaterial: IRON_BOOTS
+thrusterMaterial: GOLD_BOOTS
 
 # スラスターを噴射したときに、アイテムの耐久値をいくつ減らすかを設定します。
 # 0なら、耐久値は減りません。
-decreaseDurability: 1
+decreaseDurability: 2
 
-# プレイヤーが設置していないときに、スラスターの使用を制限するかを設定します。
+# プレイヤーが接地していないときに、スラスターの使用を制限するかを設定します。
+# true: 地面に立っているときのみスラスターが使用できます。
+# false: いつでも使用できます。空中ジャンプができるようになります。
 limitOnGround: true

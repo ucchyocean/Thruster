@@ -6,10 +6,13 @@
 package org.bitbucket.ucchy.thruster;
 
 import java.io.File;
-import java.util.HashMap;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -19,6 +22,8 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 /**
  * Thruster plugin
@@ -27,7 +32,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Thruster extends JavaPlugin implements Listener {
 
     protected static final String DISPLAY_NAME = "thruster";
-    private static HashMap<String, ThrusterTask> tasks;
 
     private ThrusterConfig config;
 
@@ -37,9 +41,6 @@ public class Thruster extends JavaPlugin implements Listener {
      */
     @Override
     public void onEnable() {
-
-        // 各種初期化
-        tasks = new HashMap<String, ThrusterTask>();
 
         // コンフィグファイルの読み込み
         config = new ThrusterConfig(this);
@@ -130,23 +131,76 @@ public class Thruster extends JavaPlugin implements Listener {
     @EventHandler
     public void onToggleSneak(PlayerToggleSneakEvent event) {
 
-        Player player = event.getPlayer();
-        String name = player.getName();
-
+        // スニークがオフになったときだけ、スラスターを起動する
         if ( event.isSneaking() ) {
-            // スニークがオンになったら、タスクを作成して開始する
-            ThrusterTask task = new ThrusterTask(player, this);
-            tasks.put(name, task);
-
-        } else {
-            // スニークがオフになったら、スラスターを起動する
-            if ( !tasks.containsKey(name) ) {
-                return;
-            }
-            tasks.get(name).thruster();
-            tasks.remove(name);
+            return;
         }
+
+        // 現在の位置を記録
+        final Player player = event.getPlayer();
+        final Location prevLoc = player.getLocation();
+
+        // ブーツがスラスターでなければ、終了する
+        final ItemStack boots = player.getInventory().getBoots();
+        if ( boots == null || boots.getType() != config.getThrusterMaterial() ||
+                !boots.getItemMeta().hasDisplayName() ||
+                !boots.getItemMeta().getDisplayName().equals(Thruster.DISPLAY_NAME) ) {
+            return;
+        }
+
+        // コンフィグで非接地時が制限されているなら、
+        // 接地していない場合は何もしないで終わる
+        if ( config.isLimitOnGround() &&
+                player.getLocation().getBlock().
+                    getRelative(BlockFace.DOWN).getType() == Material.AIR ) {
+            return;
+        }
+
+        // 1tick後に移動の差分をとり、移動方向に飛び出させる
+        new BukkitRunnable() {
+
+            @Override
+            public void run() {
+
+                double x = player.getLocation().getX() - prevLoc.getX();
+                double z = player.getLocation().getZ() - prevLoc.getZ();
+
+                // 1tick前の移動方向を取得し、横方向、上昇方向の推進力を設定する。
+                Vector vector = new Vector(x, 0, z);
+                if ( vector.length() > 0 ) {
+                    vector.normalize();
+                    vector.multiply(config.getSidePower());
+                }
+                vector.setY(config.getUpperPower());
+
+                // 飛び出させる
+                player.setVelocity(vector);
+                player.setFallDistance(player.getFallDistance() - 2);
+
+                // 音とエフェクトを発生させる
+                player.getWorld().playEffect(player.getLocation(), Effect.STEP_SOUND, 10);
+                player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, 4);
+                player.getWorld().playEffect(player.getLocation(), Effect.BLAZE_SHOOT, 0);
+
+                // 耐久値を減らす
+                if ( config.getDecreaseDurability() > 0 ) {
+                    short durability = boots.getDurability();
+                    durability += config.getDecreaseDurability();
+                    if ( durability >= boots.getType().getMaxDurability() ) {
+                        player.getInventory().setBoots(null);
+                        Utility.updateInventory(player);
+                        player.getWorld().playSound(
+                                player.getLocation(), Sound.ITEM_BREAK, 1, 1);
+                    } else {
+                        boots.setDurability(durability);
+                    }
+                }
+            }
+
+        }.runTaskLater(this, 1);
+
     }
+
 
     /**
      * このプラグインのJarファイルを返す
@@ -154,9 +208,5 @@ public class Thruster extends JavaPlugin implements Listener {
      */
     protected File getJarFile() {
         return this.getFile();
-    }
-
-    protected ThrusterConfig getThrusterConfig() {
-        return config;
     }
 }
