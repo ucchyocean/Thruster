@@ -148,6 +148,11 @@ public class Thruster extends JavaPlugin implements Listener {
             return;
         }
 
+        // 権限が無ければ終了する
+        if ( !player.hasPermission("thruster.use") ) {
+            return;
+        }
+
         // コンフィグで非接地時が制限されているなら、
         // 接地していない場合は何もしないで終わる
         if ( config.isLimitOnGround() &&

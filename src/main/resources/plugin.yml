@@ -27,9 +27,14 @@ permissions:
   thruster.reload:
     description: Allows to use reload command.
     default: op
+  thruster.use:
+    description: Allows to use thruster.
+    default: true
   'thruster.*':
+    description: All of thruster permissions.
     children:
       thruster.command: true
       thruster.get: true
       thruster.give: true
       thruster.reload: true
+      thruster.use: true
