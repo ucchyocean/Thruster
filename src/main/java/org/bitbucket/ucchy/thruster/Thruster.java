@@ -21,6 +21,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -31,7 +32,8 @@ import org.bukkit.util.Vector;
  */
 public class Thruster extends JavaPlugin implements Listener {
 
-    protected static final String DISPLAY_NAME = "thruster";
+    private static final String NAME = "thruster";
+    protected static final String DISPLAY_NAME = NAME;
 
     private ThrusterConfig config;
 
@@ -47,6 +49,23 @@ public class Thruster extends JavaPlugin implements Listener {
 
         // イベント登録
         getServer().getPluginManager().registerEvents(this, this);
+
+        // ColorTeaming のロード
+        Plugin colorteaming = null;
+        if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
+            colorteaming = getServer().getPluginManager().getPlugin("ColorTeaming");
+            String ctversion = colorteaming.getDescription().getVersion();
+            if ( Utility.isUpperVersion(ctversion, "2.2.5") ) {
+                getLogger().info("ColorTeaming was loaded. "
+                        + getDescription().getName() + " is in cooperation with ColorTeaming.");
+                ItemStack item = makeNewThrusterItem();
+                ColorTeamingBridge bridge = new ColorTeamingBridge(colorteaming);
+                bridge.registerItem(item, NAME, DISPLAY_NAME);
+            } else {
+                getLogger().warning("ColorTeaming was too old. The cooperation feature will be disabled.");
+                getLogger().warning("NOTE: Please use ColorTeaming v2.2.5 or later version.");
+            }
+        }
     }
 
     /**
@@ -106,16 +125,25 @@ public class Thruster extends JavaPlugin implements Listener {
     }
 
     /**
-     * 対象のプレイヤーに、新しいスラスターをはかせる
-     * @param player
+     * スラスターのアイテムを作成して返す
+     * @return スラスター
      */
-    private void setNewThruster(Player player) {
+    private ItemStack makeNewThrusterItem() {
 
         ItemStack item = new ItemStack(config.getThrusterMaterial());
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(DISPLAY_NAME);
         item.setItemMeta(meta);
+        return item;
+    }
 
+    /**
+     * 対象のプレイヤーに、新しいスラスターをはかせる
+     * @param player
+     */
+    private void setNewThruster(Player player) {
+
+        ItemStack item = makeNewThrusterItem();
         ItemStack temp = player.getInventory().getBoots();
         player.getInventory().setBoots(item);
         if ( temp != null && temp.getType() != Material.AIR ) {
@@ -175,8 +203,10 @@ public class Thruster extends JavaPlugin implements Listener {
                 if ( vector.length() > 0 ) {
                     vector.normalize();
                     vector.multiply(config.getSidePower());
+                    vector.setY(config.getUpperPower());
+                } else {
+                    vector.setY(config.getUpperPower() * 2);
                 }
-                vector.setY(config.getUpperPower());
 
                 // 飛び出させる
                 player.setVelocity(vector);
@@ -205,7 +235,6 @@ public class Thruster extends JavaPlugin implements Listener {
         }.runTaskLater(this, 1);
 
     }
-
 
     /**
      * このプラグインのJarファイルを返す

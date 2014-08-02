@@ -10,6 +10,10 @@ import java.io.File;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
+/**
+ * スラスターのコンフィグクラス
+ * @author ucchy
+ */
 public class ThrusterConfig {
 
     private Thruster parent;
