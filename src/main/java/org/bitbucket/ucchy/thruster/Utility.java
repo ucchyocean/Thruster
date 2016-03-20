@@ -64,7 +64,13 @@ public class Utility {
 
             } else {
                 reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-                writer = new BufferedWriter(new OutputStreamWriter(fos));
+
+                // CB190以降は、書き出すファイルエンコードにUTF-8を強制する。
+                if ( isCB19orLater() ) {
+                    writer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
+                } else {
+                    writer = new BufferedWriter(new OutputStreamWriter(fos));
+                }
 
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -159,6 +165,14 @@ public class Utility {
     }
 
     /**
+     * 現在動作中のCraftBukkitが、v1.9 以上かどうかを確認する
+     * @return v1.9以上ならtrue、そうでないならfalse
+     */
+    public static boolean isCB19orLater() {
+        return isUpperVersion(Bukkit.getBukkitVersion(), "1.9");
+    }
+
+    /**
      * 指定されたバージョンが、基準より新しいバージョンかどうかを確認する
      * @param version 確認するバージョン
      * @param border 基準のバージョン
@@ -166,7 +180,12 @@ public class Utility {
      * ただし、無効なバージョン番号（数値でないなど）が指定された場合はfalseに、
      * 2つのバージョンが完全一致した場合はtrueになる。
      */
-    public static boolean isUpperVersion(String version, String border) {
+    private static boolean isUpperVersion(String version, String border) {
+
+        int hyphen = version.indexOf("-");
+        if ( hyphen > 0 ) {
+            version = version.substring(0, hyphen);
+        }
 
         String[] versionArray = version.split("\\.");
         int[] versionNumbers = new int[versionArray.length];
