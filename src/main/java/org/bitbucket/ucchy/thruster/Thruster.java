@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -115,6 +116,7 @@ public class Thruster extends JavaPlugin implements Listener {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(DISPLAY_NAME);
         item.setItemMeta(meta);
+        item.addUnsafeEnchantment(Enchantment.ARROW_FIRE, 5);
         return item;
     }
 
@@ -154,6 +156,11 @@ public class Thruster extends JavaPlugin implements Listener {
         if ( boots == null || boots.getType() != config.getThrusterMaterial() ||
                 !boots.getItemMeta().hasDisplayName() ||
                 !boots.getItemMeta().getDisplayName().equals(Thruster.DISPLAY_NAME) ) {
+            return;
+        }
+
+        // 火矢エンチャントがついていないなら何もしない
+        if ( !boots.containsEnchantment(Enchantment.ARROW_FIRE) ) {
             return;
         }
 
