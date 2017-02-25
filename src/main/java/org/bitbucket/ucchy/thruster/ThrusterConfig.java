@@ -22,6 +22,7 @@ public class ThrusterConfig {
     private double upperPower;
     private Material thrusterMaterial;
     private int decreaseDurability;
+    private int decreaseFoodLevel;
     private boolean limitOnGround;
 
     public ThrusterConfig(Thruster parent) {
@@ -61,6 +62,11 @@ public class ThrusterConfig {
             decreaseDurability = 0;
         }
 
+        decreaseFoodLevel = conf.getInt("decreaseFoodLevel", 0);
+        if ( decreaseFoodLevel < 0 ) {
+            decreaseFoodLevel = 0;
+        }
+
         limitOnGround = conf.getBoolean("limitOnGround", true);
     }
 
@@ -97,6 +103,13 @@ public class ThrusterConfig {
      */
     public int getDecreaseDurability() {
         return decreaseDurability;
+    }
+
+    /**
+     * @return decreaseFoodLevel
+     */
+    public int getDecreaseFoodLevel() {
+        return decreaseFoodLevel;
     }
 
     /**

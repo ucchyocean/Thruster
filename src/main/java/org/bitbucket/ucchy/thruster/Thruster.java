@@ -177,6 +177,14 @@ public class Thruster extends JavaPlugin implements Listener {
             return;
         }
 
+        // コンフィグで満腹度消費が指定されているなら、
+        // 満腹度が足りない場合は、スタミナ不足のメッセージを出して終わる。
+        if ( config.getDecreaseFoodLevel() > 0 &&
+                player.getFoodLevel() < config.getDecreaseFoodLevel() ) {
+            player.sendMessage(ChatColor.RED + "Your stamina is missing.");
+            return;
+        }
+
         // 1tick後に移動の差分をとり、移動方向に飛び出させる
         new BukkitRunnable() {
 
@@ -217,6 +225,12 @@ public class Thruster extends JavaPlugin implements Listener {
                     } else {
                         boots.setDurability(durability);
                     }
+                }
+
+                // スタミナを減らす
+                if ( config.getDecreaseFoodLevel() > 0 ) {
+                    int value = player.getFoodLevel() - config.getDecreaseFoodLevel();
+                    player.setFoodLevel(value);
                 }
             }
 
