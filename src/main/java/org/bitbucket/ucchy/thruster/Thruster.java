@@ -181,7 +181,7 @@ public class Thruster extends JavaPlugin implements Listener {
         // 満腹度が足りない場合は、スタミナ不足のメッセージを出して終わる。
         if ( config.getDecreaseFoodLevel() > 0 &&
                 player.getFoodLevel() < config.getDecreaseFoodLevel() ) {
-            player.sendMessage(ChatColor.RED + "Your stamina is missing.");
+            player.sendMessage(ChatColor.RED + "Your stamina ran out.");
             return;
         }
 
